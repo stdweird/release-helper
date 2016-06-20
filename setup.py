@@ -15,12 +15,13 @@ SETUP = {
     'scripts': glob.glob('bin/*.py') + glob.glob('bin/*.sh'),
     'install_requires': [
         'PyGithub',
+        'Template-Python', # python TT port
     ],
     'test_suite': 'test',
     'data_files': [
         ('data', glob.glob('data/*html') + glob.glob('data/*example')),
     ],
-    'zip_safe': False,
+    'zip_safe': False, # shipped TT files
 }
 
 if __name__ == '__main__':
