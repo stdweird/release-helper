@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Quattor Backlog</title>
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.css">
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Lato:400);
+      body {
+        padding-bottom: 40px;
+        font-family: 'Lato', 'Helvetica', sans-serif;
+        background-color: #eef1f1;
+      }
+      h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+        font-family: 'Lato', 'Helvetica', sans-serif;
+      }
+      blockquote {
+        font-size: small;
+      }
+      .navbar-inverse {
+        background-color: #004080;
+      }
+      .navbar-inverse .navbar-brand {
+        color: white;
+      }
+      .text-github-open {
+        color: #6cc644;
+      }
+      .text-github-closed {
+        color: #BD2C00;
+      }
+      .text-github-merged {
+        color: #6E5494;
+      }
+      .thing-closed, .thing-merged {
+        display: none;
+        opacity: 0.75;
+      }
+    </style>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.2.2/moment-timezone.min.js"></script>
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="container">
+        <a class="navbar-brand"><img src="/img/quattor_logo_navbar.png" width="94" height="23" alt="quattor logo"> &mdash; Releasing</a>
+      </div>
+    </div>
+    <div class="container">
+      <button class="btn btn-default btn-sm pull-right" onclick="$('.thing-closed').toggle('slow'); $('.thing-merged').toggle('slow');">Toggle Closed &amp; Merged Items</button>
+      <ul class="nav nav-tabs" role="tablist">
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <p><span class="glyphicon glyphicon-arrow-up"></span> Select a release to view backlog</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="burndown-container" style="min-width: 800px; margin: 0 auto;">
+        </div>
+
+      </div>
+      <p class="text-muted">Page generated <span class="reldate">1970-01-02 03:04:05<span></p>
+    </div>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <script src="regression.js"></script>
+    <script src="burndown.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        $('.reldate').each(function(index) {
+          $(this).text(moment.tz($(this).text(), "YYYY-MM-DDTHH:mm:ss", "UTC").fromNow());
+        });
+      });
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        release = String(e.target).split("#",2)[1].replace("-", "."); //Ugh.
+        if (release != "Backlog") burndown(release);
+        else $('#burndown-container').html('');
+      })
+    </script>
+  </body>
+</html>

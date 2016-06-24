@@ -14,6 +14,14 @@ MST_LEGACY = 'Legacy'
 
 RE_DEPENDS = re.compile(r'((?:depends|based)\s+on|requires)\s+(?P<repository>[\w/-]*)#(?P<number>\d+)', re.IGNORECASE)
 
+TYPE_PR = 'pull-request'
+TYPE_ISSUE = 'issue'
+
+ICON_ISSUE = 'issue-opened'
+ICON_ISSUE_CLOSED = 'issue-closed'
+ICON_PR_MERGED = 'git-merge'
+ICON_PR = 'git-pull-request'
+
 
 def milestones(repo):
     """
@@ -60,7 +68,7 @@ def process_issue(issue, msts, backlog_enddate):
         logging.debug("Ignoring issues")
         return {}
 
-    this_thing = {
+    this = {
         'milestone': milestone_name,
         'number' : issue.number,
         'url' : issue.html_url,
@@ -71,20 +79,26 @@ def process_issue(issue, msts, backlog_enddate):
         'state' : issue.state,
         'comment_count' : issue.comments,
         'labels' : [l.name for l in issue.labels],
-        'type', 'pull-request' if issue.pull_request else 'issue',
+        'type', TYPE_PR if issue.pull_request else TYPE_ISSUE,
+        'icon', ICON_ISSUE,
     }
 
+    if this['type'] == TYPE_PR:
+        this['icon'] = ICON_PR_MERGED if this['state'] == 'merged' else ICON_PR
+    elif this['type'] == TYPE_ISSUE and this['state'] == 'closed':
+        this['icon'] = ICON_ISSUE_CLOSED
+
     if issue.assignee:
-        this_thing['assignee'] = issue.assignee.login
+        this['assignee'] = issue.assignee.login
 
     if issue.closed_at:
-        this_thing['closed'] = issue.closed_at.isoformat()
+        this['closed'] = issue.closed_at.isoformat()
 
     dependencies = RE_DEPENDS.search(issue.body)
     if dependencies:
-        this_thing.update(dependencies.groupdict())
+        this.update(dependencies.groupdict())
 
-    return this_thing
+    return this
 
 
 def things(repo, msts, backlog_days=60, legacy=False):
@@ -123,15 +137,15 @@ def things(repo, msts, backlog_days=60, legacy=False):
     relationships = []
 
     for issue in all_issues:
-        this_thing = process_issue(isse, msts)
-        if this_thing:
-            mst = this_thing.pop('milestone')
-            data[mst].append(this_thing)
+        this = process_issue(isse, msts)
+        if this:
+            mst = this.pop('milestone')
+            data[mst].append(this)
 
-            dep_number = this_thing.pop('dep_number', None)
+            dep_number = this.pop('dep_number', None)
             if dep_number:
-                dep_repo = this_thing.pop('dep_repo') or repo.name
-                relationships.append(('%s/%s' % (repo.name, this_thing['number']), 'requires', '%s/%s' % (dep_repo, dep_number)))
+                dep_repo = this.pop('dep_repo') or repo.name
+                relationships.append(('%s/%s' % (repo.name, this['number']), 'requires', '%s/%s' % (dep_repo, dep_number)))
 
     return data, relationships
 
@@ -156,10 +170,10 @@ def collect(repo):
     Gather issues (inlc PRs) for repo
     """
     data = retry(milestones, [repo], {})
-    
+
     things_data, relations = retry(things, [repo, data.keys()], {})
 
     for mst, mst_data in data.items():
         mst_data['things'].extend(things_data[mst])
-    
+
     return data, relations

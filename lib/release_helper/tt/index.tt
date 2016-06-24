@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Quattor Backlog</title>
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.css">
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Lato:400);
+      body {
+        padding-bottom: 40px;
+        font-family: 'Lato', 'Helvetica', sans-serif;
+        background-color: #eef1f1;
+      }
+      h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+        font-family: 'Lato', 'Helvetica', sans-serif;
+      }
+      blockquote {
+        font-size: small;
+      }
+      .navbar-inverse {
+        background-color: #004080;
+      }
+      .navbar-inverse .navbar-brand {
+        color: white;
+      }
+      .text-github-open {
+        color: #6cc644;
+      }
+      .text-github-closed {
+        color: #BD2C00;
+      }
+      .text-github-merged {
+        color: #6E5494;
+      }
+      .thing-closed, .thing-merged {
+        display: none;
+        opacity: 0.75;
+      }
+    </style>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.2.2/moment-timezone.min.js"></script>
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="container">
+        <a class="navbar-brand"><img src="/img/quattor_logo_navbar.png" width="94" height="23" alt="quattor logo"> &mdash; Releasing</a>
+      </div>
+    </div>
+    <div class="container">
+      <button class="btn btn-default btn-sm pull-right" onclick="$('.thing-closed').toggle('slow'); $('.thing-merged').toggle('slow');">Toggle Closed &amp; Merged Items</button>
+      <ul class="nav nav-tabs" role="tablist">
+[%    FOREACH milestone IN milestones %]
+        <li>
+          <a href="#[% milestone.replace('.', '-') %]" role="tab" data-toggle="tab"[% previous_releases.defined(milestone) ? ' class=thing-closed' : ''  %]>[% milestone %]</a>
+        </li>
+[%    END -%]
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane active">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <p><span class="glyphicon glyphicon-arrow-up"></span> Select a release to view backlog</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="burndown-container" style="min-width: 800px; margin: 0 auto;">
+        </div>
+
+[%      FOREACH milestone IN milestones %]
+        <div class="tab-pane panel panel-[% (milestone == 'Backlog' || milestone == 'Legacy') ? 'danger' : 'default' %]" id="[% milestone.replace('.', '-') %]">
+          <table class="table panel-body">
+[%          i_closed = 0; i_open = 0; m_due = 'never'; %]
+[%          FOREACH repo IN data.$milestone.pairs %]
+[%-             things = repo.value.things;
+                IF things.size == 0;
+                    NEXT;
+                END;
+                i_closed = i_closed + repo.value.closed;
+                i_open = i_open + repo.value.open;
+                IF repo.value.defined('due');
+                    m_due = repo.value.due;
+                END; %]
+            <tr>
+              <td class="col-md-3"><b>[% repo.key %]</b></td>
+              <td>
+                <ul class="list-unstyled">
+[%                  FOREACH this IN things.sort('title').reverse() %]
+                      <li class="thing-[% this.state %]">
+                        <span class="text-github-[% this.state %] octicon octicon-[% this.icon %]" title="State: [% this.state %]"></span>
+                        <a href="[% this.url %]"><strong>[% this.title %]</strong></a>
+[%                      IF this.comment_count > 0 %]
+                        <span class="text-muted"><span class="octicon octicon-comment-discussion"></span> [% this.comment_count %]</span>
+[%                      END %]
+                        <div style="margin-left: 16px;">
+                          <span class="text-muted">Created by</span>
+                          <a href="http://www.github.com/[% this.user %]">[% this.user %]</a>
+                          <span class="text-muted">
+                            <span class="reldate">[% this.created %]</span>
+                          </span>
+[%                        IF this.defined('assignee') %]
+                            <span class="text-muted">, Assigned to</span>
+                            <a href="http://www.github.com/[% this.assignee %]">[% this.assignee %]</a>
+[%                        END %]
+                          <span class="text-muted">, Updated <span class="reldate">[% this.updated %]</span></span>
+                        </div>
+                      </li>
+[%                  END %]
+                </ul>
+              </td>
+            </tr>
+[%        END -%]
+          </table>
+
+[%        IF i_open + i_closed > 0 -%]
+          <div class="panel-footer">
+            Progress: <span class="text-muted">([% i_closed %] closed, [% i_open %] open, due <span class="reldate">[% m_due %]</span>)</span>
+            <div class="progress" style="background-color: #ccc;">
+[%           # Do this as integer math
+              i_progress = i_closed * 100 / (i_open + i_closed) %]
+              <div class="progress-bar" role="progressbar" aria-valuenow="[% i_progress %]" aria-valuemin="0" aria-valuemax="100" style="width: [% i_progress %]%;">[% i_progress %]%</div>
+            </div>
+          </div>
+[%        END -%]
+
+        </div>
+[%    END -%]
+      </div>
+      <p class="text-muted">Page generated <span class="reldate">[% now %]<span></p>
+    </div>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    <script src="regression.js"></script>
+    <script src="burndown.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        $('.reldate').each(function(index) {
+          $(this).text(moment.tz($(this).text(), "YYYY-MM-DDTHH:mm:ss", "UTC").fromNow());
+        });
+      });
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        release = String(e.target).split("#",2)[1].replace("-", "."); //Ugh.
+        if (release != "Backlog") burndown(release);
+        else $('#burndown-container').html('');
+      })
+    </script>
+  </body>
+</html>

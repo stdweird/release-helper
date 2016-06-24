@@ -5,6 +5,22 @@ Retrieve configuration information
 import logging
 from github import Github
 
+import ConfigParser, os
+
+DEFAULT_CONFIG_FILES = ['/etc/release_helper.cfg', os.path.expanduser('~/.release_helper.cfg')]
+
+
+def read_config(cfgs=None):
+    """
+    Read the config from config files cfgs (or use DEFAULT_CONFIG_FILES if None)
+    """
+    if cfgs = None:
+        cfgs = DEFAULT_CONFIG_FILES
+
+    config = ConfigParser.ConfigParser()
+    config.read(cfgs)
+
+
 # TODO: Get following vars in  a more decent way
 USERNAME = None
 OAUTH_TOKEN = None
