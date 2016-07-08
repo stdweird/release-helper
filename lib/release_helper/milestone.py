@@ -59,7 +59,7 @@ class MileStone(object):
             state = 'closed'
             msg = 'closing'
 
-        self.edit(state='state')
+        self.edit(state=state)
         logging.info("  %s milestone %s", msg, self)
 
     def title(self):
@@ -169,8 +169,8 @@ def configure(repo, milestones=None):
 
     logging.debug("configure milestones for repo %s", repo.name)
 
-    m_open = mkms('open')
-    m_closed = mkms('closed')
+    m_open = mkms(repo, 'open')
+    m_closed = mkms(repo, 'closed')
     m_all = m_open + m_closed
 
     for m in m_closed:
@@ -202,7 +202,7 @@ def bump(repo, months=2):
     # These have to be ordered, such that bumping the milestone
     # Does not generate an already existing one
     # Sort most future one first
-    m_open = mkms('open', sort='due_date', direction='desc')
+    m_open = mkms(repo, 'open', sort='due_date', direction='desc')
 
     for m in m_open:
         logging.debug("Found open milestone %s", m)

@@ -2,8 +2,6 @@
 # encoding: utf8
 
 from json import load
-from cgi import escape
-from datetime import datetime
 from web import template
 from argparse import ArgumentParser
 

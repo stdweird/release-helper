@@ -79,7 +79,6 @@ OUTFILE = 'index.html'
 
 
 from json import load
-from cgi import escape
 from datetime import datetime
 
 previous_releases = [

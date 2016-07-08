@@ -14,11 +14,23 @@ class UtilsTest(unittest.TestCase):
     ]
     PROSPECTOR_WHITELIST = [
         'undefined',
+        'no-value-for-parameter',
+        'dangerous-default-value',
+        'redefined-builtin',
+        'bare-except',
+        'E713',  # not 'c' in d: -> 'c' not in d:
+        'arguments-differ',
+        'unused-argument',
+        'unused-variable',
+        'reimported',
+        'F811', # redefinition of unused name
+        'unused-import',
+        'syntax-error',
     ]
 
     # Prospector commandline options (positional path is added automatically)
     PROSPECTOR_OPTIONS = [
-        '--strictness', 'verylow',
+        '--strictness', 'medium',
         '--max-line-length', '120',
         '--absolute-paths',
     ]
@@ -31,12 +43,10 @@ class UtilsTest(unittest.TestCase):
 
         sys.argv = ['release-helper-prospector']
 
-        # no extra options needed
-        #sys.argv.extend(self.PROSPECTOR_OPTIONS)
+        # extra options needed
+        sys.argv.extend(self.PROSPECTOR_OPTIONS)
         # add/set repository path as basepath
-        #sys.argv.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-        print sys.argv
+        sys.argv.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
         config = ProspectorConfig()
         prospector = Prospector(config)

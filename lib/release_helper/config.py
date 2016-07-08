@@ -68,7 +68,7 @@ def make_config(cfgs=None):
                     'login_or_token': opts[USERNAME],
                     'password': opts[TOKEN],
                 }
-            except KeyError as e:
+            except KeyError:
                 logging.error('%s and/or %s are mandatory for each github section', USERNAME, TOKEN)
                 raise
 
@@ -137,6 +137,6 @@ def get_labels():
     """
     labels = CONFIG[LABELS]
 
-    logging.info("Using %s labels: %s", len(labels), ','.join(["%s=%s" for k,v in labels.items()]))
+    logging.info("Using %s labels: %s", len(labels), ','.join(["%s=%s" % (k,v) for k,v in labels.items()]))
 
     return labels

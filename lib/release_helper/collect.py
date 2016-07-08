@@ -5,9 +5,9 @@ Gather the relevant data for a repo, all values must be serialised.
 import logging
 import socket
 import re
-from ssl import SSLError
-from github import GithubException
 from datetime import datetime, timedelta
+from itertools import chain
+from ssl import SSLError
 
 MST_BACKLOG = 'Backlog'
 MST_LEGACY = 'Legacy'
@@ -42,7 +42,7 @@ def milestones(repo):
         mst_d['closed'] = int(mst.closed_issues)
 
         if mst.due_on:
-            mst_d['due'] = milestone.due_on.isoformat()
+            mst_d['due'] = mst.due_on.isoformat()
 
     return data
 
@@ -64,7 +64,7 @@ def process_issue(issue, msts, backlog_enddate):
         else:
             milestone_name = MST_LEGACY
 
-    if not milestone_name in msts:
+    if milestone_name not in msts:
         logging.debug("Ignoring issues")
         return {}
 
@@ -79,8 +79,8 @@ def process_issue(issue, msts, backlog_enddate):
         'state' : issue.state,
         'comment_count' : issue.comments,
         'labels' : [l.name for l in issue.labels],
-        'type', TYPE_PR if issue.pull_request else TYPE_ISSUE,
-        'icon', ICON_ISSUE,
+        'type': TYPE_PR if issue.pull_request else TYPE_ISSUE,
+        'icon': ICON_ISSUE,
     }
 
     if this['type'] == TYPE_PR:
@@ -137,7 +137,7 @@ def things(repo, msts, backlog_days=60, legacy=False):
     relationships = []
 
     for issue in all_issues:
-        this = process_issue(isse, msts)
+        this = process_issue(issue, msts, backlog_enddate)
         if this:
             mst = this.pop('milestone')
             data[mst].append(this)

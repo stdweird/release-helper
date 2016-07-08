@@ -3,10 +3,7 @@
 # vi:ts=4:et
 
 from json import load
-from cgi import escape
-from datetime import datetime
 from web import template
-from argparse import ArgumentParser
 
 render = template.render('templates')
 

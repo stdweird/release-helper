@@ -2,8 +2,6 @@
 # encoding: utf8
 
 from json import load, dump
-from cgi import escape
-from datetime import datetime
 import sys
 
 # Render data

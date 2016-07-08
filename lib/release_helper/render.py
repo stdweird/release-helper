@@ -41,7 +41,7 @@ def index(prev):
     data = {
         'now': datetime.utcnow().replace(microsecond=0).isoformat(' '),
         'milestones': '', # milestones
-        'previous_releases': {}, # TODO use a dict for easy lookup
+        'previous_releases': dict([(x, 1) for x in prev]), # dict for easy lookup
         'data': {}, # dict with milestone key, and dict value, which has repo key
     }
     return render('index', data)
