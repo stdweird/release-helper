@@ -7,7 +7,9 @@ import socket
 import re
 from datetime import datetime, timedelta
 from itertools import chain
+from json import dump
 from ssl import SSLError
+
 
 MST_BACKLOG = 'Backlog'
 MST_LEGACY = 'Legacy'
@@ -165,7 +167,7 @@ def retry(fn, args, kwargs, retries=3):
     raise Exception("No more retrials left for %s (last %s)" % (fn.__name__, e))
 
 
-def collect(repo):
+def collect_one(repo):
     """
     Gather issues (inlc PRs) for repo
     """
@@ -177,3 +179,31 @@ def collect(repo):
         mst_data['things'].extend(things_data[mst])
 
     return data, relations
+
+
+def collect(repos, filenames):
+    """
+    collect github repository information
+    """
+    all_pulls = {}
+    all_relations = []
+    for repo in repos:
+        logging.debug("Collecting %s", repo.name)
+
+        pulls, relations = collect_one(repo)
+
+        for mst, m_pulls in pulls.items():
+            all_m_pulls = all_pulls.setdefault(mst, {})
+            all_m_pulls[repo.name] = m_pulls
+
+        all_relations.extend(relations)
+
+    pulls_fn = filenames['pulls']
+    with open(pulls_fn, 'w') as f:
+        dump(all_pulls, f, indent=4)
+        logging.debug('Collect wrote pulls data in %s', pulls_fn)
+
+    relations_fn = filenames['relations']
+    with open(relations_fn, 'w') as f:
+        dump(all_relations, f, indent=4)
+        logging.debug('Collect wrote relation data in %s', relations_fn)

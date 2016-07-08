@@ -5,6 +5,7 @@ Retrieve configuration information
 import ConfigParser
 import logging
 import os
+import tempfile
 import re
 from github import Github
 
@@ -16,6 +17,7 @@ LABELS = 'labels'
 
 # main attributes + default github section name
 GITHUB = 'github' # comma seperated list of section names with github-api details
+PROJECT = 'project' # project name, unique name used to store e.g. the json files
 
 # github attrbutes
 USERNAME = 'username' # username MANDATORY
@@ -32,18 +34,18 @@ REPOS = 'repos'
 CONFIG = {
     REPOS: [],
     LABELS: {},
+    PROJECT: 'github',
 }
 
-
-def read_config(cfgs=None):
+def read_config(cfgs):
     """
     Read the config from config files cfgs (or use DEFAULT_CONFIG_FILES if None)
     """
-    if cfgs is None:
-        cfgs = DEFAULT_CONFIG_FILES
-
     config = ConfigParser.ConfigParser()
-    config.read(cfgs)
+
+    read_cfgs = config.read(cfgs)
+    if len(cfgs) != len(read_cfgs):
+        logging.warn("Not all cfgs %s were found: %s", cfgs, read_cfgs)
 
     return config
 
@@ -52,12 +54,21 @@ def make_config(cfgs=None):
     """
     Parse the config files and populate the CONFIG dict
     """
+    if cfgs is None:
+        cfgs = DEFAULT_CONFIG_FILES
+
+    logging.debug("Reading config from configfiles: %s", cfgs)
     config = read_config(cfgs=cfgs)
+
+    if config.has_option(MAIN, PROJECT):
+        CONFIG[PROJECT] = config.get(MAIN, PROJECT)
 
     if config.has_option(MAIN, GITHUB):
         githubs = map(str.strip, config.get(MAIN, GITHUB).split(','))
     else:
         githubs = [GITHUB]
+
+    total = 0
     logging.debug("Using githubs sections %s", githubs)
     for gh in githubs:
         if config.has_section(gh):
@@ -78,11 +89,11 @@ def make_config(cfgs=None):
             g = Github(**kwargs)
 
             if ORGANISATION in opts:
-                q = g.get_user(ORGANISATION)
+                q = g.get_organization(opts[ORGANISATION])
+                logging.debug("%s %s in github section %s", ORGANISATION, opts[ORGANISATION], gh)
             else:
-                msg = 'Missing %s in github section %s' % (ORGANISATION, gh)
-                logging.error(msg)
-                raise Exception(msg)
+                logging.debug('Missing %s in github section %s, using current user %s', ORGANISATION, gh, kwargs['login_or_token'])
+                q = g.get_user()
 
             # Apply white filter
             if WHITE in opts:
@@ -98,17 +109,24 @@ def make_config(cfgs=None):
 
             # Get all repo names
             for repo in q.get_repos():
-                if white and not any(map(re.search, white, [repo.title]*len(white))):
+                total += 1
+                if white and not any(map(re.search, white, [repo.name]*len(white))):
                     # if white and no match, skip
+                    logging.debug("Skipped repo %s in github %s due to white %s", repo.name, gh, [x.pattern for x in white])
                     continue
-                if black and any(map(re.search, black, [repo.title]*len(black))):
+                if black and any(map(re.search, black, [repo.name]*len(black))):
                     # if black and match skip
+                    logging.debug("Skipped repo %s in github %s due to black %s", repo.name, gh, [x.pattern for x in black])
                     continue
+
+                logging.debug("Adding repo %s in github %s", repo.name, gh)
                 CONFIG[REPOS].append(repo)
         else:
             msg = "No github section %s found" % gh
             logging.error(msg)
             raise Exception(msg)
+
+    logging.debug("Got %s repos out of %s total: %s", len(CONFIG[REPOS]), total, [x.name for x in CONFIG[REPOS]])
 
     # Labels from labels section
     if config.has_section(LABELS):
@@ -140,3 +158,17 @@ def get_labels():
     logging.info("Using %s labels: %s", len(labels), ','.join(["%s=%s" % (k,v) for k,v in labels.items()]))
 
     return labels
+
+
+def get_json_filenames():
+    """
+    Return the JSON filenames
+    """
+    tmpdir = tempfile.gettempdir()
+
+    names = {
+        'pulls': os.path.join(tmpdir, '%s-pulls.json' % CONFIG[PROJECT]),
+        'relations': os.path.join(tmpdir, '%s-relations.json' % CONFIG[PROJECT]),
+    }
+
+    return names

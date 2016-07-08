@@ -5,8 +5,8 @@ import release_helper.config as cfg
 
 # mock.patch really isn't made for this
 class Repo(object):
-    def __init__(self, title):
-        self.title = title
+    def __init__(self, name):
+        self.name = name
 
 class GHU(object):
     def __init__(self, org, ghargs):
@@ -25,7 +25,10 @@ class GH(object):
     def __init__(self, **kwargs):
         GHCALLED.append(kwargs)
 
-    def get_user(self, org):
+    def get_user(self, user):
+        return GHU(user, GHCALLED[-1])
+
+    def get_organization(self, org):
         return GHU(org, GHCALLED[-1])
 
 
@@ -46,6 +49,7 @@ class UtilsTest(unittest.TestCase):
 
         self.assertEqual(GHCALLED, [{'login_or_token': 'example1', 'password': '1234567890'},
                                     {'password': 'abcdef123456', 'login_or_token': 'localuser', 'base_url': 'https://enterprise.example.com/some/subtree/v3/'}])
-        self.assertEqual(sorted(config.keys()), ['labels', 'repos'])
+        self.assertEqual(sorted(config.keys()), ['labels', 'project', 'repos'])
+        self.assertEqual(config['project'], 'mytest')
         self.assertEqual(config['labels'], {'bug': 'ef2929', 'question': '123456'})
-        self.assertEqual([r.title for r in config['repos']], ['repoabc', 'repopublic'])
+        self.assertEqual([r.name for r in config['repos']], ['repoabc', 'repopublic'])
