@@ -16,6 +16,9 @@ SETUP = {
     'install_requires': [
         'PyGithub',
         'Template-Python', # python TT port
+        # For tests
+        #'mock',
+        #'prospector',
     ],
     'test_suite': 'test',
     'data_files': [
