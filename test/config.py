@@ -49,7 +49,12 @@ class UtilsTest(unittest.TestCase):
 
         self.assertEqual(GHCALLED, [{'login_or_token': 'example1', 'password': '1234567890'},
                                     {'password': 'abcdef123456', 'login_or_token': 'localuser', 'base_url': 'https://enterprise.example.com/some/subtree/v3/'}])
-        self.assertEqual(sorted(config.keys()), ['labels', 'project', 'repos'])
-        self.assertEqual(config['project'], 'mytest')
+        self.assertEqual(sorted(config.keys()), ['labels', 'project', 'releases', 'repos'])
+
         self.assertEqual(config['labels'], {'bug': 'ef2929', 'question': '123456'})
+        self.assertEqual(config['project'], 'mytest')
+        self.assertEqual(config['releases'], {
+            "14.10" : {"start" : "2014-09-01", "rcs" : "2014-10-27", "target" : "2014-11-01"},
+            "15.2"  : {"start" : "2014-11-14", "rcs" : "2015-03-07", "target" : "2015-03-20"},
+        })
         self.assertEqual([r.name for r in config['repos']], ['repoabc', 'repopublic'])

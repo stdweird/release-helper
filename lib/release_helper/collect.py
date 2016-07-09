@@ -9,10 +9,8 @@ from datetime import datetime, timedelta
 from itertools import chain
 from json import dump
 from ssl import SSLError
+from release_helper.milestone import MST_LEGACY, MST_BACKLOG
 
-
-MST_BACKLOG = 'Backlog'
-MST_LEGACY = 'Legacy'
 
 RE_DEPENDS = re.compile(r'((?:depends|based)\s+on|requires)\s+(?P<repository>[\w/-]*)#(?P<number>\d+)', re.IGNORECASE)
 
@@ -67,7 +65,7 @@ def process_issue(issue, msts, backlog_enddate):
             milestone_name = MST_LEGACY
 
     if milestone_name not in msts:
-        logging.debug("Ignoring issues")
+        logging.debug("Ignoring issue %s (milestone %s not in list)", issue.title, milestone_name)
         return {}
 
     this = {

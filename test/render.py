@@ -30,14 +30,13 @@ class UtilsTest(unittest.TestCase):
         Test rendering index using TT
         """
         mocked_datetime.utcnow.return_value=datetime.datetime(1970, 1, 2, 3, 4, 5, 6)
-        
+
         self.maxDiff = None
         self.longMessage = True
 
         fn = os.path.join(os.path.dirname(__file__), 'data', 'index.html')
         res = open(fn).read()
 
-        data = {
-        }
+        json_filename = os.path.join(os.path.dirname(__file__), 'data', 'quattor-pulls.json')
 
-        self.assertMultiLineEqual(index(data), res)
+        self.assertMultiLineEqual(index('myproject', json_filename), res)

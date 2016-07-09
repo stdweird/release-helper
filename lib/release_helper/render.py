@@ -5,6 +5,8 @@ TT rendering
 import logging
 import os
 from datetime import datetime
+from json import dump, load
+from release_helper.milestone import sort_milestones
 from template import Template, TemplateException
 
 
@@ -34,14 +36,44 @@ def render(tt, data):
         raise TemplateException('render', msg)
 
 
-def index(prev):
+def make_html(project, releases, output_filenames):
+    """
+    Generate and write the release index.html
+    """
+    html = index(project, output_filenames['pulls'])
+
+    releases_fn = output_filenames['releases']
+    with open(releases_fn, 'w') as f:
+        dump(releases, f, indent=4)
+        logging.info('Wrote releases data in %s', releases_fn)
+
+    index_html = output_filenames['index']
+    with open(index_html, 'w') as f:
+        f.write(html)
+        logging.info("Wrote index %s", index_html)
+
+
+def index(project, pulls_filename, previous=None):
     """
     Generate index.html from index.tt
+
+    Load data from pulls_filename json
     """
-    data = {
-        'now': datetime.utcnow().replace(microsecond=0).isoformat(' '),
-        'milestones': '', # milestones
-        'previous_releases': dict([(x, 1) for x in prev]), # dict for easy lookup
-        'data': {}, # dict with milestone key, and dict value, which has repo key
-    }
-    return render('index', data)
+    if previous is None:
+        previous = []
+
+    logging.debug("index from %s JSON data", pulls_filename)
+    with open(pulls_filename) as f_in:
+        pulls = load(f_in)
+
+        milestones = sort_milestones(pulls.keys())
+
+        data = {
+            'project': project,
+            'now': datetime.utcnow().replace(microsecond=0).isoformat(' '),
+            'milestones': previous + milestones, # milestones
+            'previous_releases': dict([(x, 1) for x in previous]), # dict for easy lookup
+            'data': pulls, # dict with milestone key, and dict value, which has repo key
+        }
+
+        return render('index', data)

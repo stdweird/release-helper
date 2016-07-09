@@ -14,6 +14,7 @@ DEFAULT_CONFIG_FILES = ['/etc/release_helper.cfg', os.path.expanduser('~/.releas
 # Section names
 MAIN = 'main' # is optional, github section is than default github-api section
 LABELS = 'labels'
+RELEASES = 'releases'
 
 # main attributes + default github section name
 GITHUB = 'github' # comma seperated list of section names with github-api details
@@ -32,9 +33,10 @@ REPOS = 'repos'
 
 # Config state, set/updated by make_config
 CONFIG = {
+    PROJECT: 'project',
     REPOS: [],
     LABELS: {},
-    PROJECT: 'github',
+    RELEASES: {},
 }
 
 def read_config(cfgs):
@@ -50,7 +52,7 @@ def read_config(cfgs):
     return config
 
 
-def make_config(cfgs=None):
+def make_config(cfgs=None, use_github=True):
     """
     Parse the config files and populate the CONFIG dict
     """
@@ -63,13 +65,16 @@ def make_config(cfgs=None):
     if config.has_option(MAIN, PROJECT):
         CONFIG[PROJECT] = config.get(MAIN, PROJECT)
 
-    if config.has_option(MAIN, GITHUB):
+    if not use_github:
+        githubs = []
+    elif config.has_option(MAIN, GITHUB):
         githubs = map(str.strip, config.get(MAIN, GITHUB).split(','))
     else:
         githubs = [GITHUB]
 
     total = 0
-    logging.debug("Using githubs sections %s", githubs)
+
+    logging.debug("Using githubs sections %s (use_github %s)", githubs, use_github)
     for gh in githubs:
         if config.has_section(gh):
             opts = dict(config.items(gh))
@@ -134,8 +139,26 @@ def make_config(cfgs=None):
     else:
         logging.warning("No %s section found" % LABELS)
 
+    # Releases section
+    # milestone=start,rcs,target
+    if config.has_section(RELEASES):
+        for mst, dates in config.items(RELEASES):
+            CONFIG[RELEASES][mst] = dict(zip(['start', 'rcs', 'target'], dates.split(',')[:3]))
+    else:
+        logging.warning("No %s section found" % RELEASES)
+
     # For unittesting mainly
     return CONFIG
+
+def get_project():
+    """
+    Return project name
+    """
+    project = CONFIG[PROJECT]
+
+    logging.info("Project names %s", project)
+
+    return project
 
 
 def get_repos():
@@ -160,15 +183,29 @@ def get_labels():
     return labels
 
 
-def get_json_filenames():
+def get_releases():
     """
-    Return the JSON filenames
+    Return the labels map: name => hexcolor
+    """
+    releases = CONFIG[RELEASES]
+
+    logging.info("Using %s releases: %s", len(releases), ','.join(sorted(releases.keys())))
+
+    return releases
+
+
+def get_output_filenames():
+    """
+    Return the basedir and (abspath) output filenames (e.g. JSON, html)
     """
     tmpdir = tempfile.gettempdir()
+    basedir = os.path.join(tmpdir, CONFIG[PROJECT])
 
     names = {
-        'pulls': os.path.join(tmpdir, '%s-pulls.json' % CONFIG[PROJECT]),
-        'relations': os.path.join(tmpdir, '%s-relations.json' % CONFIG[PROJECT]),
+        'pulls': os.path.join(basedir, 'pulls.json'),
+        'relations': os.path.join(basedir, 'relations.json'),
+        'index': os.path.join(basedir, 'index.html'),
+        'releases': os.path.join(basedir, 'releases.json'),
     }
 
-    return names
+    return basedir, names

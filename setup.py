@@ -22,7 +22,9 @@ SETUP = {
     ],
     'test_suite': 'test',
     'data_files': [
-        ('data', glob.glob('data/*html') + glob.glob('data/*example')),
+        # Look for better location
+        ('release_helper/data', glob.glob('data/*html') + glob.glob('data/*example') + glob.glob('data/*/js')),
+        ('release_helper/tt', glob.glob('lib/release_helper/tt/*.tt')),
     ],
     'zip_safe': False, # shipped TT files
 }

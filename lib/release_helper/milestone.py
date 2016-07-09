@@ -6,6 +6,10 @@ from datetime import date, datetime, timedelta
 from calendar import monthrange
 
 
+MST_BACKLOG = 'Backlog'
+MST_LEGACY = 'Legacy'
+
+
 class MileStone(object):
     def __init__(self, milestone=None, year_month=None, title=None):
         self.year = None
@@ -222,3 +226,25 @@ def bump(repo, months=2):
             m_u.set_due_date()
         else:
             logging.info('Not modifying open point release %s', m)
+
+
+def sort_milestones(msts, add_special=True):
+    """
+    Return sorted milestones
+    """
+    # TODO: replace by MileStone instances with ordering support
+    # special is ordered
+    special = (MST_BACKLOG, MST_LEGACY,)
+    
+    # milestones are sorted keys on date, with Backlog and Legacy last
+    milestones = [x for x in msts if x not in special]
+    milestones.sort(key=lambda s: [int(u) for u in s.split('.')])
+
+    if add_special:
+        for mst in special:
+            if mst in msts:
+                milestones.append(mst)
+                
+    return milestones
+
+

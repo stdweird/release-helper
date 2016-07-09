@@ -3,8 +3,10 @@
 
 import argparse
 import logging
-from release_helper.config import make_config, get_repos, get_json_filenames
+import os
+from release_helper.config import make_config, get_project, get_repos, get_releases, get_output_filenames
 from release_helper.collect import collect
+from release_helper.render import make_html
 
 def get_args():
     """
@@ -15,6 +17,7 @@ def get_args():
     parser.add_argument("-C", "--configs", help="comma-separated list of config files")
 
     parser.add_argument("-c", "--collect", help="collect github repository information", action="store_true")
+    parser.add_argument("-r", "--render", help="render html release overview", action="store_true")
 
     args = parser.parse_args()
     return args
@@ -34,15 +37,29 @@ def main():
     if args.configs:
         cfgs = args.configs.split(',')
 
-    make_config(cfgs=cfgs)
+
+    use_github = any([getattr(args, x) for x in ('collect',)])
+
+    # Do not unneccesiraly gather GH data
+    make_config(cfgs=cfgs, use_github=use_github)
 
     repos = get_repos()
-    json_filenames = get_json_filenames()
+    project = get_project()
+    releases = get_releases()
+
+    basedir, filenames = get_output_filenames()
+
+    if not os.path.isdir(basedir):
+        os.mkdir(basedir)
 
     logging.debug('Release helper start')
     if args.collect:
         logging.info('Collect')
-        collect(repos, json_filenames)
+        collect(repos, filenames)
+
+    if args.render:
+        logging.info('Render')
+        make_html(project, releases, filenames)
 
     logging.debug('Release helper end')
 

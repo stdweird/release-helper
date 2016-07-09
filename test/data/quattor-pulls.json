@@ -1,0 +1,261 @@
+{
+    "16.6": {
+        "CCM": {
+            "things": [
+                {
+                    "updated": "2016-07-08T13:01:15",
+                    "labels": [],
+                    "number": 111,
+                    "user": "stdweird",
+                    "icon": "git-pull-request",
+                    "title": "ProfileCache: Lock use reporter instance for reporting",
+                    "url": "https://github.com/quattor/CCM/pull/111",
+                    "created": "2016-07-07T12:43:29",
+                    "comment_count": 0,
+                    "state": "closed",
+                    "closed": "2016-07-08T13:01:15",
+                    "type": "pull-request"
+                },
+                {
+                    "updated": "2016-05-17T16:33:26",
+                    "labels": [],
+                    "number": 101,
+                    "user": "stdweird",
+                    "icon": "git-pull-request",
+                    "title": "CCM: fetchProfile should close all CAF::File* instances ",
+                    "url": "https://github.com/quattor/CCM/pull/101",
+                    "created": "2016-05-16T08:56:38",
+                    "comment_count": 4,
+                    "state": "closed",
+                    "closed": "2016-05-17T16:33:26",
+                    "type": "pull-request"
+                },
+                {
+                    "updated": "2016-05-09T10:06:41",
+                    "labels": [],
+                    "number": 99,
+                    "user": "stdweird",
+                    "icon": "git-pull-request",
+                    "title": "bump build-tools to 1.49",
+                    "url": "https://github.com/quattor/CCM/pull/99",
+                    "created": "2016-05-09T09:40:08",
+                    "comment_count": 1,
+                    "state": "closed",
+                    "closed": "2016-05-09T10:06:41",
+                    "type": "pull-request"
+                }
+            ],
+            "open": 0,
+            "due": "2016-06-30T07:00:00",
+            "closed": 11
+        },
+        "CAF": {
+            "things": [
+                {
+                    "updated": "2016-07-07T10:02:43",
+                    "labels": [],
+                    "number": 174,
+                    "user": "jouvin",
+                    "icon": "git-pull-request",
+                    "title": "Add PyCharm and Eclipse files to gitignore",
+                    "url": "https://github.com/quattor/CAF/pull/174",
+                    "created": "2016-07-07T09:49:05",
+                    "comment_count": 0,
+                    "state": "closed",
+                    "closed": "2016-07-07T10:02:43",
+                    "type": "pull-request"
+                },
+                {
+                    "updated": "2016-07-08T13:26:38",
+                    "labels": [],
+                    "number": 173,
+                    "user": "stdweird",
+                    "icon": "git-pull-request",
+                    "title": "Lock: handle existing old-style locks",
+                    "url": "https://github.com/quattor/CAF/pull/173",
+                    "created": "2016-07-06T15:54:55",
+                    "comment_count": 16,
+                    "state": "closed",
+                    "closed": "2016-07-08T12:57:56",
+                    "type": "pull-request"
+                },
+                {
+                    "updated": "2016-07-08T12:57:56",
+                    "labels": [],
+                    "number": 172,
+                    "user": "stdweird",
+                    "icon": "issue-closed",
+                    "title": "Lock not compatible with old lock",
+                    "url": "https://github.com/quattor/CAF/issues/172",
+                    "created": "2016-07-06T13:41:53",
+                    "comment_count": 0,
+                    "state": "closed",
+                    "closed": "2016-07-08T12:57:56",
+                    "type": "issue"
+                }
+            ],
+            "open": 0,
+            "due": "2016-06-30T07:00:00",
+            "closed": 25
+        }
+    },
+    "Legacy": {
+        "CCM": {
+            "things": [],
+            "open": 0,
+            "due": null,
+            "closed": 0
+        },
+        "CAF": {
+            "things": [
+                {
+                    "updated": "2016-07-06T09:33:14",
+                    "labels": [
+                        "bug",
+                        "discuss at workshop"
+                    ],
+                    "number": 148,
+                    "user": "ttyS4",
+                    "icon": "issue-opened",
+                    "title": "CAF::FileWriter updates files in-place",
+                    "url": "https://github.com/quattor/CAF/issues/148",
+                    "created": "2016-04-11T13:03:16",
+                    "comment_count": 11,
+                    "state": "open",
+                    "type": "issue"
+                }
+            ],
+            "open": 0,
+            "due": null,
+            "closed": 0
+        }
+    },
+    "16.10": {
+        "CCM": {
+            "things": [
+                {
+                    "updated": "2016-06-05T09:55:39",
+                    "labels": [],
+                    "number": 107,
+                    "user": "stdweird",
+                    "icon": "issue-opened",
+                    "title": "remove CCM::Property class",
+                    "url": "https://github.com/quattor/CCM/issues/107",
+                    "created": "2016-06-05T09:52:08",
+                    "comment_count": 1,
+                    "state": "open",
+                    "type": "issue"
+                }
+            ],
+            "open": 1,
+            "due": "2016-10-31T07:00:00",
+            "closed": 0
+        },
+        "CAF": {
+            "things": [
+                {
+                    "updated": "2016-05-05T15:07:03",
+                    "labels": [],
+                    "number": 62,
+                    "user": "stdweird",
+                    "icon": "issue-opened",
+                    "title": "CAF::Download",
+                    "url": "https://github.com/quattor/CAF/issues/62",
+                    "created": "2014-10-26T16:07:41",
+                    "comment_count": 0,
+                    "state": "open",
+                    "type": "issue"
+                }
+            ],
+            "open": 1,
+            "due": "2016-10-31T07:00:00",
+            "closed": 0
+        }
+    },
+    "Backlog": {
+        "CCM": {
+            "things": [
+                {
+                    "updated": "2016-07-08T15:25:10",
+                    "labels": [],
+                    "number": 112,
+                    "user": "msmark",
+                    "icon": "issue-opened",
+                    "title": "ccm-fetch to support downloading test profiles",
+                    "url": "https://github.com/quattor/CCM/issues/112",
+                    "created": "2016-07-08T15:19:36",
+                    "comment_count": 2,
+                    "state": "open",
+                    "type": "issue"
+                }
+            ],
+            "open": 0,
+            "due": null,
+            "closed": 0
+        },
+        "CAF": {
+            "things": [
+                {
+                    "updated": "2016-06-03T12:16:39",
+                    "labels": [
+                        "bug"
+                    ],
+                    "number": 167,
+                    "user": "ned21",
+                    "icon": "issue-opened",
+                    "title": "CAF::Process, $? and NoAction",
+                    "url": "https://github.com/quattor/CAF/issues/167",
+                    "created": "2016-06-02T20:41:26",
+                    "comment_count": 1,
+                    "state": "open",
+                    "type": "issue"
+                }
+            ],
+            "open": 0,
+            "due": null,
+            "closed": 0
+        }
+    },
+    "16.8": {
+        "CCM": {
+            "things": [
+                {
+                    "updated": "2016-06-08T11:48:26",
+                    "labels": [],
+                    "number": 109,
+                    "user": "stdweird",
+                    "icon": "issue-opened",
+                    "title": "ugly exception during initial installation",
+                    "url": "https://github.com/quattor/CCM/issues/109",
+                    "created": "2016-06-08T11:48:26",
+                    "comment_count": 0,
+                    "state": "open",
+                    "type": "issue"
+                }
+            ],
+            "open": 7,
+            "due": "2016-08-30T07:00:00",
+            "closed": 0
+        },
+        "CAF": {
+            "things": [
+                {
+                    "updated": "2016-06-04T13:13:01",
+                    "labels": [],
+                    "number": 169,
+                    "user": "stdweird",
+                    "icon": "issue-opened",
+                    "title": "CAF::FileWriter support mtime",
+                    "url": "https://github.com/quattor/CAF/issues/169",
+                    "created": "2016-06-04T13:13:01",
+                    "comment_count": 0,
+                    "state": "open",
+                    "type": "issue"
+                }
+            ],
+            "open": 7,
+            "due": "2016-08-30T07:00:00",
+            "closed": 0
+        }
+    }
+}

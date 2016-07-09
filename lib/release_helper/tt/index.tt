@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Quattor Backlog</title>
+    <title>[% project %] release</title>
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.css">
     <style type="text/css">
@@ -46,7 +46,7 @@
   <body>
     <div class="navbar navbar-inverse navbar-static-top" role="navigation">
       <div class="container">
-        <a class="navbar-brand"><img src="/img/quattor_logo_navbar.png" width="94" height="23" alt="quattor logo"> &mdash; Releasing</a>
+        <a class="navbar-brand"><img src="/img/[% project %]_logo_navbar.png" width="94" height="23" alt="[% project %] logo"> &mdash; Releasing</a>
       </div>
     </div>
     <div class="container">
@@ -54,7 +54,7 @@
       <ul class="nav nav-tabs" role="tablist">
 [%    FOREACH milestone IN milestones %]
         <li>
-          <a href="#[% milestone.replace('.', '-') %]" role="tab" data-toggle="tab"[% previous_releases.defined(milestone) ? ' class=thing-closed' : ''  %]>[% milestone %]</a>
+          <a href="#[% milestone.replace('\.', '-') %]" role="tab" data-toggle="tab"[% previous_releases.defined(milestone) ? ' class=thing-closed' : ''  %]>[% milestone %]</a>
         </li>
 [%    END -%]
       </ul>
@@ -72,7 +72,7 @@
         </div>
 
 [%      FOREACH milestone IN milestones %]
-        <div class="tab-pane panel panel-[% (milestone == 'Backlog' || milestone == 'Legacy') ? 'danger' : 'default' %]" id="[% milestone.replace('.', '-') %]">
+        <div class="tab-pane panel panel-[% (milestone == 'Backlog' || milestone == 'Legacy') ? 'danger' : 'default' %]" id="[% milestone.replace('\.', '-') %]">
           <table class="table panel-body">
 [%          i_closed = 0; i_open = 0; m_due = 'never'; %]
 [%          FOREACH repo IN data.$milestone.pairs %]
@@ -144,8 +144,8 @@
       });
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         release = String(e.target).split("#",2)[1].replace("-", "."); //Ugh.
-        if (release != "Backlog") burndown(release);
-        else $('#burndown-container').html('');
+        if (release == "Backlog" || release == 'Legacy') $('#burndown-container').html('');
+        else burndown(release);
       })
     </script>
   </body>
