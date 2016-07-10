@@ -2,8 +2,10 @@
 TT rendering
 """
 
+import glob
 import logging
 import os
+import shutil
 from datetime import datetime
 from json import dump, load
 from release_helper.milestone import sort_milestones
@@ -13,6 +15,7 @@ from template import Template, TemplateException
 # Distribute the TT files as part of the py files, unzipped
 INCLUDEPATH = os.path.join(os.path.dirname(__file__), 'tt')
 
+JAVASCRIPT = os.path.join(os.path.dirname(__file__), 'javascript')
 
 def render(tt, data):
     """
@@ -43,6 +46,7 @@ def make_html(project, releases, output_filenames):
       * index.html
       * burndown-%(milestone).json
     """
+    # generate the releases.json data
     releases_fn = output_filenames['releases']
     with open(releases_fn, 'w') as f:
         dump(releases, f)
@@ -55,8 +59,14 @@ def make_html(project, releases, output_filenames):
         f.write(html)
         logging.info("Wrote index %s", index_html)
 
+    # generate the burndown json data
     make_burndown(output_filenames['pulls'], output_filenames['burndown'])
 
+    # copy the javascript in place
+    javascript_dir = output_filenames['javascript']
+    for fn in glob.glob(os.path.join(JAVASCRIPT, '*.js')):
+        logging.debug("copying javascript files %s to dir %s", fn, javascript_dir)
+        shutil.copy(fn, javascript_dir)
 
 def index(project, pulls_filename, previous=None):
     """
