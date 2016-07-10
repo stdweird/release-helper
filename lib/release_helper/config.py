@@ -206,6 +206,7 @@ def get_output_filenames():
         'relations': os.path.join(basedir, 'relations.json'),
         'index': os.path.join(basedir, 'index.html'),
         'releases': os.path.join(basedir, 'releases.json'),
+        'burndown': os.path.join(basedir, 'burndown-%(milestone)s.json'),
     }
 
     return basedir, names

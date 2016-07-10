@@ -38,19 +38,24 @@ def render(tt, data):
 
 def make_html(project, releases, output_filenames):
     """
-    Generate and write the release index.html
+    Generate and write the release
+      * releases.json
+      * index.html
+      * burndown-%(milestone).json
     """
-    html = index(project, output_filenames['pulls'])
-
     releases_fn = output_filenames['releases']
     with open(releases_fn, 'w') as f:
-        dump(releases, f, indent=4)
+        dump(releases, f)
         logging.info('Wrote releases data in %s', releases_fn)
+
+    html = index(project, output_filenames['pulls'])
 
     index_html = output_filenames['index']
     with open(index_html, 'w') as f:
         f.write(html)
         logging.info("Wrote index %s", index_html)
+
+    make_burndown(output_filenames['pulls'], output_filenames['burndown'])
 
 
 def index(project, pulls_filename, previous=None):
@@ -77,3 +82,40 @@ def index(project, pulls_filename, previous=None):
         }
 
         return render('index', data)
+
+
+def make_burndown(pulls_filename, burndown_template):
+    """
+    Generate the burndown-%(mst).json
+    """
+    logging.debug("burndown from %s JSON data", pulls_filename)
+    with open(pulls_filename) as f_in:
+        pulls = load(f_in)
+
+        # No burndown data from Backlog/Legacy
+        milestones = sort_milestones(pulls.keys(), add_special=False)
+
+        for mst in milestones:
+            fn = burndown_template % {'milestone': mst}
+
+            repos = pulls[mst].keys()
+            to_burn = 0
+            burned = []
+
+            for repo in repos:
+                things = pulls[mst][repo]['things']
+                to_burn += len(things)
+                burned.extend([t['closed'] for t in things if 'closed' in t])
+            burned.sort()
+
+            burndown = {
+                'to_burn': to_burn,
+                'closed': [],
+            }
+            for closed in burned:
+                to_burn -= 1
+                burndown['closed'].append([closed, to_burn])
+
+            with open(fn, 'w') as f:
+                dump(burndown, f)
+                logging.info('Wrote burndown data for milestone %s in %s', mst, fn)
