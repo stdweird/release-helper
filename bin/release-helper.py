@@ -7,6 +7,9 @@ import os
 from release_helper.config import make_config, get_project, get_repos, get_releases, get_output_filenames
 from release_helper.collect import collect
 from release_helper.render import make_html
+import BaseHTTPServer
+import SimpleHTTPServer
+
 
 def get_args():
     """
@@ -18,6 +21,9 @@ def get_args():
 
     parser.add_argument("-c", "--collect", help="collect github repository information", action="store_true")
     parser.add_argument("-r", "--render", help="render html release overview", action="store_true")
+
+    parser.add_argument("-w", "--web", help="start simple webserver", action="store_true")
+    parser.add_argument("-p", "--port", help="webserver port", default=8000)
 
     args = parser.parse_args()
     return args
@@ -62,6 +68,16 @@ def main():
         make_html(project, releases, filenames)
 
     logging.debug('Release helper end')
+
+    if args.web:
+        os.chdir(basedir)
+        logging.debug('Starting webserver on port %s from basedir %s, running forever', args.port, basedir)
+        server_address = ('', int(args.port))
+
+        HandlerClass = SimpleHTTPServer.SimpleHTTPRequestHandler
+        HandlerClass.protocol_version = "HTTP/1.0"
+        httpd = BaseHTTPServer.HTTPServer(server_address, HandlerClass)
+        httpd.serve_forever()
 
 if __name__ == '__main__':
     main()

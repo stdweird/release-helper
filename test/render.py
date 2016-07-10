@@ -39,4 +39,10 @@ class UtilsTest(unittest.TestCase):
 
         json_filename = os.path.join(os.path.dirname(__file__), 'data', 'quattor-pulls.json')
 
-        self.assertMultiLineEqual(index('myproject', json_filename), res)
+        html = index('myproject', json_filename)
+
+        # Uncomment to update the rendered test/data/index.html once considered ok
+        # Do not forget to comment it again
+        #open('/tmp/testrenderindex.html', 'w').write(html)
+
+        self.assertMultiLineEqual(html, res)
