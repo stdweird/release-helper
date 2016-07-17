@@ -8,6 +8,7 @@ import os
 import shutil
 from datetime import datetime
 from json import dump, load
+from release_helper.collect import TYPE_PR, TYPE_ISSUE, BACKWARDS_INCOMPATIBLE
 from release_helper.milestone import sort_milestones
 from template import Template, TemplateException
 
@@ -68,7 +69,8 @@ def make_html(project, releases, output_filenames):
         logging.debug("copying javascript files %s to dir %s", fn, javascript_dir)
         shutil.copy(fn, javascript_dir)
 
-def index(project, pulls_filename, previous=None):
+
+def index(project, pulls_filename, previous=None, template='index'):
     """
     Generate index.html from index.tt
 
@@ -91,10 +93,10 @@ def index(project, pulls_filename, previous=None):
             'data': pulls, # dict with milestone key, and dict value, which has repo key
         }
 
-        return render('index', data)
+        return render(template, data)
 
 
-def make_burndown(pulls_filename, burndown_template):
+def make_burndown(pulls_filename, burndownfn_template):
     """
     Generate the burndown-%(mst).json
     """
@@ -106,7 +108,7 @@ def make_burndown(pulls_filename, burndown_template):
         milestones = sort_milestones(pulls.keys(), add_special=False)
 
         for mst in milestones:
-            fn = burndown_template % {'milestone': mst}
+            fn = burndownfn_template % {'milestone': mst}
 
             repos = pulls[mst].keys()
             to_burn = 0
@@ -129,3 +131,73 @@ def make_burndown(pulls_filename, burndown_template):
             with open(fn, 'w') as f:
                 dump(burndown, f)
                 logging.info('Wrote burndown data for milestone %s in %s', mst, fn)
+
+                
+def make_notes(project, milestone, template, output_filenames):
+    """
+    Create the reelase notes file
+    """
+    notesfn = output_filenames['releasenotes'] % {'milestone': milestone}
+    notes = release_notes(project, output_filenames['pulls'], milestone, template)
+    with open(notesfn, 'w') as f:
+        f.write(notes)
+        logging.info("Wrote releasenotes %s", notesfn)
+        
+
+def release_notes(project, pulls_filename, milestone, template):
+    """
+    Generate the release notes for milestone using release template TT
+    """
+
+    logging.debug("burndown from %s JSON data", pulls_filename)
+
+    with open(pulls_filename) as f_in:
+        all_pulls = load(f_in)
+        all_milestones = sort_milestones(all_pulls.keys())
+
+        # Will fail if no current or no next milestone can be determined
+        try:
+            next_milestone = all_milestones[all_milestones.index(milestone)+1]
+        except IndexError, KeyError:
+            logging.error("No next milestone for current %s in %s", milestone, all_milestones)
+            raise
+
+        repos = all_pulls[milestone].keys()
+        repos.sort()
+
+        # PR notes
+        pulls = {}
+
+        count_issues = 0
+        count_pulls = 0
+        for repo in repos:
+            things = all_pulls[milestone][repo]['things']
+
+            count_issues += len([t for t in things if t['type'] == TYPE_ISSUE])
+
+            rpulls = [t for t in things if t['type'] == TYPE_PR]
+            rpulls.sort(key=lambda t: t['title'])
+            count_pulls += len(rpulls)
+
+            pulls[repo]= rpulls
+
+        backwards_incompatible = {}
+        for repo, prs in pulls.items():
+            bw_ic = [t for t in prs if t.get(BACKWARDS_INCOMPATIBLE, False)]
+            if bw_ic:
+                backwards_incompatible[repo] = bw_ic
+
+        data = {
+            'project': project,
+            'now': datetime.utcnow().replace(microsecond=0).isoformat(' '),
+            'milestone': milestone,
+            'next_milestone': next_milestone,
+            'count_issues': count_issues,
+            'count_pulls': count_pulls,
+            'pulls': pulls, # dict with repo key, and list of PRs as value
+        }
+
+        if backwards_incompatible:
+            data['backwards'] = backwards_incompatible
+
+        return render(template, data)

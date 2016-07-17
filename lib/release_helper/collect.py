@@ -22,6 +22,11 @@ ICON_ISSUE_CLOSED = 'issue-closed'
 ICON_PR_MERGED = 'git-merge'
 ICON_PR = 'git-pull-request'
 
+BACKWARDS_INCOMPATIBLE = 'backwards_incompatible'
+TO_DISCUSS = 'to_discuss'
+
+LABELS_BACKWARDS_INCOMPATIBLE = [BACKWARDS_INCOMPATIBLE, 'backwards incompatible']
+LABELS_TO_DISCUSS = [TO_DISCUSS, 'discuss at workshop']
 
 def milestones(repo):
     """
@@ -98,6 +103,13 @@ def process_issue(issue, msts, backlog_enddate):
     if dependencies:
         this.update(dependencies.groupdict())
 
+    # Special labels
+    if any([l in LABELS_BACKWARDS_INCOMPATIBLE for l in this['labels']]):
+        this[BACKWARDS_INCOMPATIBLE] = True
+
+    if any([l in LABELS_TO_DISCUSS for l in this['labels']]):
+        this[TO_DISCUSS] = True
+        
     return this
 
 

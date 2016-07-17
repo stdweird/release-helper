@@ -6,7 +6,7 @@ import logging
 import os
 from release_helper.config import make_config, get_project, get_repos, get_releases, get_output_filenames
 from release_helper.collect import collect
-from release_helper.render import make_html
+from release_helper.render import make_html, make_notes
 import BaseHTTPServer
 import SimpleHTTPServer
 
@@ -24,6 +24,10 @@ def get_args():
 
     parser.add_argument("-w", "--web", help="start simple webserver", action="store_true")
     parser.add_argument("-p", "--port", help="webserver port", default=8000)
+
+    parser.add_argument("-n", "--notes", help="Generate the releasenotes", action="store_true")
+    parser.add_argument("--milestone", help="Milestone to use (for releasenotes)")
+    parser.add_argument("--notestemplate", help="TT template to use for the releasenotes", default='quattor_releasenotes')
 
     args = parser.parse_args()
     return args
@@ -66,6 +70,10 @@ def main():
     if args.render:
         logging.info('Render')
         make_html(project, releases, filenames)
+
+    if args.notes:
+        logging.info("Release notes using milestone %s and template %s", args.milestone, args.notestemplate)
+        make_notes(project, args.milestone, args.notestemplate, filenames)
 
     logging.debug('Release helper end')
 

@@ -1,0 +1,36 @@
+---
+layout: article
+title: [% project %] [% milestone %] released
+category: news
+author: James Adams
+---
+
+Packages are available from our [yum repository](http://yum.quattor.org/[% milestone %]/),
+both the RPMs and the repository metadata are signed with
+[my GPG key](http://yum.quattor.org/GPG/RPM-GPG-KEY-quattor-jrha).
+
+As always, many thanks to everyone who contributed!
+We merged [% count_pulls %] pull requests and resolved [% count_issues %] issues.
+
+The next release should be [% next_milestone %],
+take a look at the [backlog](http://www.quattor.org/release/) to see what we're working on.
+
+[% IF backwards.defined() -%]
+Backwards Incompatible Changes
+------------------------------
+[%      FOREACH repo IN backwards.pairs %]
+### [% repo.key %]
+[%          FOREACH pr IN repo.value -%]
+* [[%           pr.title.replace('^([^:]+): ', '**$1:** ') %]](https://github.com/quattor/[% repo.key %]/pull/[% pr.number %])
+[%          END -%]
+[%      END %]
+[%- END -%]
+
+Changelog
+---------
+[% FOREACH repo IN pulls.pairs %]
+### [% repo.key %]
+[%      FOREACH pr IN repo.value -%]
+* [[%       pr.title.replace('^([^:]+): ', '**$1:** ') %]](https://github.com/quattor/[% repo.key %]/pull/[% pr.number %])
+[%      END -%]
+[% END %]

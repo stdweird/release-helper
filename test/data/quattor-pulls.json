@@ -67,7 +67,10 @@
                 },
                 {
                     "updated": "2016-07-08T13:26:38",
-                    "labels": [],
+                    "labels": [
+                        "discuss at workshop",
+                        "backwards incompatible"
+                    ],
                     "number": 173,
                     "user": "stdweird",
                     "icon": "git-pull-request",
@@ -77,7 +80,9 @@
                     "comment_count": 16,
                     "state": "closed",
                     "closed": "2016-07-08T12:57:56",
-                    "type": "pull-request"
+                    "type": "pull-request",
+                    "backwards_incompatible": true,
+                    "to_discuss": true
                 },
                 {
                     "updated": "2016-07-08T12:57:56",

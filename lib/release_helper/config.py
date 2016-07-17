@@ -208,6 +208,7 @@ def get_output_filenames():
         'releases': os.path.join(basedir, 'releases.json'),
         'burndown': os.path.join(basedir, 'burndown-%(milestone)s.json'), # filename template
         'javascript': basedir, # directory
+        'releasenotes': os.path.join(basedir, 'releasenotes-%(milestone)s'), # filename template
     }
 
     return basedir, names
