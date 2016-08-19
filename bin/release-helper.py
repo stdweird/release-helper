@@ -7,6 +7,7 @@ import os
 from release_helper.config import make_config, get_project, get_repos, get_releases, get_output_filenames
 from release_helper.collect import collect
 from release_helper.render import make_html, make_notes
+from release_helper.milestone import milestones_from_releases, configure_milestones
 import BaseHTTPServer
 import SimpleHTTPServer
 
@@ -29,6 +30,8 @@ def get_args():
     parser.add_argument("--milestone", help="Milestone to use (for releasenotes)")
     parser.add_argument("--notestemplate", help="TT template to use for the releasenotes", default='quattor_releasenotes')
 
+    parser.add_argument("-m", '--milestones', help='Configure milestones (from configured releases)', action='store_true')
+
     args = parser.parse_args()
     return args
 
@@ -47,8 +50,7 @@ def main():
     if args.configs:
         cfgs = args.configs.split(',')
 
-
-    use_github = any([getattr(args, x) for x in ('collect',)])
+    use_github = any([getattr(args, x) for x in ('collect', 'milestones',)])
 
     # Do not unneccesiraly gather GH data
     make_config(cfgs=cfgs, use_github=use_github)
@@ -63,6 +65,13 @@ def main():
         os.mkdir(basedir)
 
     logging.debug('Release helper start')
+
+    if args.milestones:
+        logging.info('Configure milestones')
+        milestones = milestones_from_releases(releases)
+        for repo in repos:
+            configure_milestones(repo, milestones)
+
     if args.collect:
         logging.info('Collect')
         collect(repos, filenames)

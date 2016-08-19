@@ -158,7 +158,7 @@ def release_notes(project, pulls_filename, milestone, template):
         # Will fail if no current or no next milestone can be determined
         try:
             next_milestone = all_milestones[all_milestones.index(milestone)+1]
-        except IndexError, KeyError:
+        except (IndexError, KeyError):
             logging.error("No next milestone for current %s in %s", milestone, all_milestones)
             raise
 

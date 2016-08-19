@@ -11,12 +11,22 @@ MST_LEGACY = 'Legacy'
 
 
 class MileStone(object):
-    def __init__(self, milestone=None, year_month=None, title=None):
+    def __init__(self, milestone=None, year_month=None, title=None, release=None):
+        """
+        Create a milestone instance from one-of
+            milestone: another milestone instance
+            year_month: a tuple (year, month)
+            title: a title (i.e. a string with title format)
+
+        release is a dictionary with release dates (from CONFIG[RELEASES])
+        """
         self.year = None
         self.month = None
         self.point = None
 
         self.milestone = None
+
+        self.release = release
 
         if milestone:
             self.milestone = milestone
@@ -47,7 +57,7 @@ class MileStone(object):
             raise('MileStone: cannot edit without milstone attribute')
 
         # Insert title
-        args = [self.title()] + args
+        args = [self.title()] + list(args)
 
         self.milestone.edit(*args, **kwargs)
 
@@ -78,32 +88,48 @@ class MileStone(object):
         return txt
 
     def create(self, repo):
-        """Add new milestone to repo"""
+        """
+        Add new milestone to repo and set new instance as milestone attribute
+        """
 
-        due = self.get_due()
-        logging.info('Creating milestone %s in repo %s (due %s)', self, repo.nam, due)
-        repo.create_milestone(title=self.title(), due_on=due)
+        logging.info('Creating milestone %s in repo %s', self, repo.name)
+        # Do not pass due_on here, see https://github.com/PyGithub/PyGithub/issues/396
+        milestone = repo.create_milestone(title=self.title())
+        if self.milestone:
+            logging.debug("Replacing current milestone %s with newly created one %s", self.milestone, milestone)
+        self.milestone = milestone
+        self.set_due_date()
 
-    def get_due(self):
-        """Create the due_on date"""
+    def get_due(self, from_title=None):
+        """
+        Return the due_on date
 
-        day = monthrange(self.year, self.month)[-1]
-        due_on = date(self.year, self.month, day)
+        If release is set, use the target date.
+        If not (or from_title is true), use the year/month (i.e. from the title)
+        """
 
-        # TODO: from config file
-        if self.title() == '16.4':
-            due_on = date(2016, 5, 20)
-            logging.info('Pushed back due date for 16.4 to %s', due_on)
+        if self.release and not from_title:
+            due_on = self.release['target']
+            logging.debug('Due date %s from release target for %s', due_on, self)
+        else:
+            day = monthrange(self.year, self.month)[-1]
+            due_on = date(self.year, self.month, day)
 
-        logging.debug("Generated due_on date %s for %s", due_on, self)
+            logging.debug("Generated due date %s for %s", due_on, self)
 
         return due_on
 
     def set_due_date(self):
         """Set the due date"""
-        due = self.get_due()
-        if self.milestone.due_on != due:
-            self.edit(due_on=due)
+        if self.milestone:
+            due = self.get_due()
+            if self.milestone.due_on != due:
+                logging.info("Set due date from %s to %s", self.milestone.due_on, due)
+                self.edit(due_on=due)
+            else:
+                logging.debug("No resetting milestone due date to same due %s", due)
+        else:
+            logging.warn("No milestone instance set for set_due_date")
 
     def __str__(self):
         return self.title()
@@ -129,9 +155,21 @@ def add_months(sourcedate, months):
     return date(year, month, day)
 
 
+def milestones_from_releases(releases):
+    """
+    Generate a list of  milestones based on releases
+    """
+    milestones = [MileStone(title=title, release=release) for title, release in releases.items()]
+    milestones.sort(key=lambda s: s.release['target'])
+
+    logging.debug("Milestones from releases: %s", ", ".join(map(str, milestones)))
+
+    return milestones
+
+
 def generate_milestones(milestones=4, months=2, today=None):
     """
-    Generate the next year/month tuples for the next milestones (each spanning months)
+    Generate the next milestones (each spanning months)
     """
     if today is None:
         today = date.today()
@@ -162,17 +200,17 @@ def mkms(repo, state, **kwargs):
     return [MileStone(milestone=m) for m in repo.get_milestones(**kwargs)]
 
 
-def configure(repo, milestones=None):
+def configure_milestones(repo, milestones):
     """
     Open / reopen milestones for repo
-    milestones is a year/month tuple
+    Set correct due date from release info from milestones list
     """
 
-    if milestones is None:
-        milestones = generate_milestones()
+    # TODO: change state somehow
 
     logging.debug("configure milestones for repo %s", repo.name)
 
+    # These MileStone instances have no release data
     m_open = mkms(repo, 'open')
     m_closed = mkms(repo, 'closed')
     m_all = m_open + m_closed
@@ -185,22 +223,35 @@ def configure(repo, milestones=None):
         logging.debug("  Found open milestone %s", m)
 
         if m.point is None:
+            if m in milestones:
+                m.release = milestones[milestones.index(m)].release
+                logging.debug("Adding release data %s to open milestone %s", m.release, m)
+            else:
+                logging.warn("Configuring open milestone %s in repo but not found in releases. Date will be generated", m, repo.name)
             m.set_due_date()
             m.set_state()
         else:
-            logging.info('   Not modifying open point release %s', m)
+            logging.info('   Not modifying open point release %s in repo %s', m, repo.name)
 
     for m in milestones:
         if m in m_all:
-            logging.debug('Future milestone %s already in open/closed', m)
+            logging.debug('Future milestone %s already in open/closed in repo %s', m, repo.name)
         else:
             m.create(repo)
 
 
-def bump(repo, months=2):
+def bump(repo, months=2, releases=None):
     """
     Bump the open milestones for the repository.
-    This shifts the due date by months and changes the title accordingly.
+
+    This shifts the due date by months and changes the title accordingly (preserves issues/prs).
+
+    If a release is present, it assumes it is the old release data (so do not change it before bump)
+    and than it also bumps the release start, rcs and target dates.
+
+    The release data is only used for generating new/bumped release config data.
+
+    Return the new releases config text (if any)
     """
 
     # These have to be ordered, such that bumping the milestone
@@ -208,25 +259,37 @@ def bump(repo, months=2):
     # Sort most future one first
     m_open = mkms(repo, 'open', sort='due_date', direction='desc')
 
+    u_release_txt = []
     for m in m_open:
         logging.debug("Found open milestone %s", m)
 
         if m.point is None:
-            due = m.get_due()
-            due_updated = add_months(due, months)
+            # get_due from title only
+            due_from_title = m.get_due(from_title=True)
+            due_updated = add_months(due_from_title, months)
 
             # Make a new MileStone
             m_u = MileStone(year_month=(due_updated.year, due_updated.month))
 
             # Reuse the original milestone instance
             m_u.milestone = m.milestone
-            # set_due_date with the original milestone instance will modify the due date and the title
+
+            # set_due_date will now use the original milestone instance
+            # to modify the due date and the title
             logging.info("Bump milestone %s (due %s) to new %s (due %s) for repo %s",
-                         m, due, m_u, m_u.get_due(), repo.name)
+                         m, due_from_title, m_u, m_u.get_due(), repo.name)
             m_u.set_due_date()
+
+            # Generate bumped release config data
+            release_u = None
+            release = releases.get(m.title(), None)
+            if release:
+                release_u = [add_months(release[k], months).strftime('%Y-m-%d') for k in ['start', 'rcs', 'target']]
+                u_release_txt.append(','.join(release_u))
         else:
             logging.info('Not modifying open point release %s', m)
 
+    return "\n".join(u_release_txt)
 
 def sort_milestones(msts, add_special=True):
     """
@@ -235,7 +298,7 @@ def sort_milestones(msts, add_special=True):
     # TODO: replace by MileStone instances with ordering support
     # special is ordered
     special = (MST_BACKLOG, MST_LEGACY,)
-    
+
     # milestones are sorted keys on date, with Backlog and Legacy last
     milestones = [x for x in msts if x not in special]
     milestones.sort(key=lambda s: [int(u) for u in s.split('.')])
@@ -244,7 +307,5 @@ def sort_milestones(msts, add_special=True):
         for mst in special:
             if mst in msts:
                 milestones.append(mst)
-                
+
     return milestones
-
-

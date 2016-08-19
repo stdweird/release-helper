@@ -7,6 +7,7 @@ import logging
 import os
 import tempfile
 import re
+from datetime import datetime
 from github import Github
 
 DEFAULT_CONFIG_FILES = ['/etc/release_helper.cfg', os.path.expanduser('~/.release_helper.cfg')]
@@ -14,7 +15,7 @@ DEFAULT_CONFIG_FILES = ['/etc/release_helper.cfg', os.path.expanduser('~/.releas
 # Section names
 MAIN = 'main' # is optional, github section is than default github-api section
 LABELS = 'labels'
-RELEASES = 'releases'
+RELEASES = 'releases' # start,rcs,target (YYYY-MM-DD format)
 
 # main attributes + default github section name
 GITHUB = 'github' # comma seperated list of section names with github-api details
@@ -141,9 +142,10 @@ def make_config(cfgs=None, use_github=True):
 
     # Releases section
     # milestone=start,rcs,target
+    # format YYYY-MM-DD
     if config.has_section(RELEASES):
         for mst, dates in config.items(RELEASES):
-            CONFIG[RELEASES][mst] = dict(zip(['start', 'rcs', 'target'], dates.split(',')[:3]))
+            CONFIG[RELEASES][mst] = dict(zip(['start', 'rcs', 'target'], [datetime.strptime(d, '%Y-%m-%d') for d in dates.split(',')[:3]]))
     else:
         logging.warning("No %s section found" % RELEASES)
 

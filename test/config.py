@@ -1,3 +1,4 @@
+import datetime
 import os
 import unittest
 import release_helper.config as cfg
@@ -54,7 +55,15 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(config['labels'], {'bug': 'ef2929', 'question': '123456'})
         self.assertEqual(config['project'], 'mytest')
         self.assertEqual(config['releases'], {
-            "14.10" : {"start" : "2014-09-01", "rcs" : "2014-10-27", "target" : "2014-11-01"},
-            "15.2"  : {"start" : "2014-11-14", "rcs" : "2015-03-07", "target" : "2015-03-20"},
+            "14.10" : {
+                "start" : datetime.datetime(2014, 9, 1, 0, 0),
+                "rcs" : datetime.datetime(2014, 10, 27, 0, 0),
+                "target" : datetime.datetime(2014, 11, 1, 0, 0),
+            },
+            "15.2"  : {
+                "start" : datetime.datetime(2014, 11, 14, 0, 0),
+                "rcs" : datetime.datetime(2015, 3, 7, 0, 0),
+                "target" : datetime.datetime(2015, 3, 20, 0, 0),
+            },
         })
         self.assertEqual([r.name for r in config['repos']], ['repoabc', 'repopublic'])

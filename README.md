@@ -23,6 +23,8 @@ Commands
  * notes: generate the release notes (there's a *notestemplate* option to select a different template)
    Example:
        release-helper.py  --configs=.secret/credentials.cfg,quattor.cfg --notes --milestone 16.6
+ * milestones: configure milestones due date on release data (or generated if milestone is not in release data)
+     * TODO: Missing the ability to open/close milestones
 
 Example release page
 ====================
