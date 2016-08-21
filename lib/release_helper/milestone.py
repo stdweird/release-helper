@@ -251,15 +251,18 @@ def bump(repo, months=2, releases=None):
 
     The release data is only used for generating new/bumped release config data.
 
-    Return the new releases config text (if any)
+    Return the new releases config data (if any)
     """
 
+    if releases is None:
+        releases = {}
+
     # These have to be ordered, such that bumping the milestone
-    # Does not generate an already existing one
+    # does not generate an already existing one
     # Sort most future one first
     m_open = mkms(repo, 'open', sort='due_date', direction='desc')
 
-    u_release_txt = []
+    u_release_data = {}
     for m in m_open:
         logging.debug("Found open milestone %s", m)
 
@@ -284,12 +287,12 @@ def bump(repo, months=2, releases=None):
             release_u = None
             release = releases.get(m.title(), None)
             if release:
-                release_u = [add_months(release[k], months).strftime('%Y-m-%d') for k in ['start', 'rcs', 'target']]
-                u_release_txt.append(','.join(release_u))
+                release_u = [add_months(release[k], months).strftime('%Y-%m-%d') for k in ['start', 'rcs', 'target']]
+                u_release_data[m_u.title()] = release_u
         else:
             logging.info('Not modifying open point release %s', m)
 
-    return "\n".join(u_release_txt)
+    return u_release_data
 
 def sort_milestones(msts, add_special=True):
     """

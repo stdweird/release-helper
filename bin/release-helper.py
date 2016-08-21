@@ -7,7 +7,7 @@ import os
 from release_helper.config import make_config, get_project, get_repos, get_releases, get_output_filenames
 from release_helper.collect import collect
 from release_helper.render import make_html, make_notes
-from release_helper.milestone import milestones_from_releases, configure_milestones
+from release_helper.milestone import milestones_from_releases, configure_milestones, bump
 import BaseHTTPServer
 import SimpleHTTPServer
 
@@ -32,6 +32,9 @@ def get_args():
 
     parser.add_argument("-m", '--milestones', help='Configure milestones (from configured releases)', action='store_true')
 
+    parser.add_argument('--bump', help='Bump/shift milestones number of months, print new release section', action='store_true')
+    parser.add_argument('--months', help='Number of months to bump/shift milestones', action='store_true', default=2)
+
     args = parser.parse_args()
     return args
 
@@ -50,7 +53,7 @@ def main():
     if args.configs:
         cfgs = args.configs.split(',')
 
-    use_github = any([getattr(args, x) for x in ('collect', 'milestones',)])
+    use_github = any([getattr(args, x) for x in ('collect', 'milestones', 'bump',)])
 
     # Do not unneccesiraly gather GH data
     make_config(cfgs=cfgs, use_github=use_github)
@@ -71,18 +74,31 @@ def main():
         milestones = milestones_from_releases(releases)
         for repo in repos:
             configure_milestones(repo, milestones)
+    elif args.bump:
+        logging.info('Bump milestones with %s months', args.months)
+        u_release_data = {}
+        for repo in repos:
+            u_release_data.update(bump(repo, months=args.months, releases=releases))
 
-    if args.collect:
-        logging.info('Collect')
-        collect(repos, filenames)
+        # Create new release section config
+        txt = []
+        for title, dates in sorted(u_release_data.items()):
+            txt.append("%s=%s" % (title, ','.join(dates)))
 
-    if args.render:
-        logging.info('Render')
-        make_html(project, releases, filenames)
+        print "\n".join(txt)
 
-    if args.notes:
-        logging.info("Release notes using milestone %s and template %s", args.milestone, args.notestemplate)
-        make_notes(project, args.milestone, args.notestemplate, filenames)
+    else:
+        if args.collect:
+            logging.info('Collect')
+            collect(repos, filenames)
+
+        if args.render:
+            logging.info('Render')
+            make_html(project, releases, filenames)
+
+        if args.notes:
+            logging.info("Release notes using milestone %s and template %s", args.milestone, args.notestemplate)
+            make_notes(project, args.milestone, args.notestemplate, filenames)
 
     logging.debug('Release helper end')
 
