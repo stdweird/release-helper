@@ -207,6 +207,7 @@ def get_output_filenames():
         'pulls': os.path.join(basedir, 'pulls.json'),
         'relations': os.path.join(basedir, 'relations.json'),
         'index': os.path.join(basedir, 'index.html'),
+        'discuss': os.path.join(basedir, 'to_discuss.html'),
         'releases': os.path.join(basedir, 'releases.json'),
         'burndown': os.path.join(basedir, 'burndown-%(milestone)s.json'), # filename template
         'javascript': basedir, # directory

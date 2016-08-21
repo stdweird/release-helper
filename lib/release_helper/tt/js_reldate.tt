@@ -1,0 +1,5 @@
+      $(function() {
+        $('.reldate').each(function(index) {
+          $(this).text(moment.tz($(this).text(), "YYYY-MM-DDTHH:mm:ss", "UTC").fromNow());
+        });
+      });

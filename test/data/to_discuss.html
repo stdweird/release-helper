@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>myproject to discuss</title>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.2.2/moment-timezone.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.css">
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Lato:400);
+      body {
+        padding-bottom: 40px;
+        font-family: 'Lato', 'Helvetica', sans-serif;
+        background-color: #eef1f1;
+      }
+      h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+        font-family: 'Lato', 'Helvetica', sans-serif;
+      }
+      blockquote {
+        font-size: small;
+      }
+      .navbar-inverse {
+        background-color: #004080;
+      }
+      .navbar-inverse .navbar-brand {
+        color: white;
+      }
+      .text-github-open {
+        color: #6cc644;
+      }
+      .text-github-closed {
+        color: #BD2C00;
+      }
+      .text-github-merged {
+        color: #6E5494;
+      }
+      .thing-closed, .thing-merged {
+        display: none;
+        opacity: 0.75;
+      }
+    </style>
+
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="container">
+        <a class="navbar-brand"><img src="/img/myproject_logo_navbar.png" width="94" height="23" alt="myproject logo"> &mdash; Discuss</a>
+      </div>
+    </div>
+    <div class="container">
+      <h2>To be discussed at the next workshop</h2>
+      <div class="panel panel-default">
+        <table class="table panel-body">
+
+
+          <tr>
+            <td class="col-md-3"><b>CAF</b></td>
+            <td>
+              <ul class="list-unstyled">
+
+                <li class="thing-open">
+                  <span class="text-github-open octicon octicon-issue-opened" title="State: open"></span>
+                  <a href="https://github.com/quattor/CAF/issues/148"><strong>CAF::FileWriter updates files in-place</strong></a>
+
+                  <span class="text-muted"><span class="octicon octicon-comment-discussion"></span> 11</span>
+
+                  <div style="margin-left: 16px;">
+                    <span class="text-muted">Created by</span>
+                    <a href="http://www.github.com/ttyS4">ttyS4</a>
+                    <span class="text-muted">
+                      <span class="reldate">2016-04-11T13:03:16</span>
+                    </span>
+
+                    <span class="text-muted">, Updated <span class="reldate">2016-07-06T09:33:14</span></span>
+                  </div>
+                </li>
+
+              </ul>
+            </td>
+          </tr>
+
+
+        </table>
+      </div>
+    <div>
+    <script type="text/javascript">
+      $(function() {
+        $('.reldate').each(function(index) {
+          $(this).text(moment.tz($(this).text(), "YYYY-MM-DDTHH:mm:ss", "UTC").fromNow());
+        });
+      });
+
+    </script>
+  </body>
+</html>

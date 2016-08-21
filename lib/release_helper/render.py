@@ -8,7 +8,7 @@ import os
 import shutil
 from datetime import datetime
 from json import dump, load
-from release_helper.collect import TYPE_PR, TYPE_ISSUE, BACKWARDS_INCOMPATIBLE
+from release_helper.collect import TYPE_PR, TYPE_ISSUE, BACKWARDS_INCOMPATIBLE, TO_DISCUSS
 from release_helper.milestone import sort_milestones
 from template import Template, TemplateException
 
@@ -43,9 +43,10 @@ def render(tt, data):
 def make_html(project, releases, output_filenames):
     """
     Generate and write the release
-      * releases.json
-      * index.html
-      * burndown-%(milestone).json
+        * releases.json
+        * index.html
+        * to_discuss.html
+        * burndown-%(milestone).json
     """
     # generate the releases.json data
     releases_fn = output_filenames['releases']
@@ -53,12 +54,17 @@ def make_html(project, releases, output_filenames):
         dump(releases, f)
         logging.info('Wrote releases data in %s', releases_fn)
 
-    html = index(project, output_filenames['pulls'])
+    index, discuss = index_discuss(project, output_filenames['pulls'])
 
     index_html = output_filenames['index']
     with open(index_html, 'w') as f:
-        f.write(html)
+        f.write(index)
         logging.info("Wrote index %s", index_html)
+
+    discuss_html = output_filenames['discuss']
+    with open(discuss_html, 'w') as f:
+        f.write(discuss)
+        logging.info("Wrote discuss %s", discuss_html)
 
     # generate the burndown json data
     make_burndown(output_filenames['pulls'], output_filenames['burndown'])
@@ -70,9 +76,9 @@ def make_html(project, releases, output_filenames):
         shutil.copy(fn, javascript_dir)
 
 
-def index(project, pulls_filename, previous=None, template='index'):
+def index_discuss(project, pulls_filename, previous=None, index='index', discuss='discuss'):
     """
-    Generate index.html from index.tt
+    Generate index.html and to_discuss.html
 
     Load data from pulls_filename json
     """
@@ -93,7 +99,18 @@ def index(project, pulls_filename, previous=None, template='index'):
             'data': pulls, # dict with milestone key, and dict value, which has repo key
         }
 
-        return render(template, data)
+        index_html = render(index, data)
+
+        things_discuss = {}
+        for milestone_data in pulls.values():
+            for repo, repo_data in milestone_data.items():
+                things = things_discuss.setdefault(repo, [])
+                things.extend([t for t in repo_data['things'] if t.get(TO_DISCUSS, False) and t['state'] != 'closed'])
+
+        data['discuss'] = things_discuss
+        discuss_html = render(discuss, data)
+
+        return index_html, discuss_html
 
 
 def make_burndown(pulls_filename, burndownfn_template):
@@ -132,7 +149,7 @@ def make_burndown(pulls_filename, burndownfn_template):
                 dump(burndown, f)
                 logging.info('Wrote burndown data for milestone %s in %s', mst, fn)
 
-                
+
 def make_notes(project, milestone, template, output_filenames):
     """
     Create the reelase notes file
@@ -142,7 +159,7 @@ def make_notes(project, milestone, template, output_filenames):
     with open(notesfn, 'w') as f:
         f.write(notes)
         logging.info("Wrote releasenotes %s", notesfn)
-        
+
 
 def release_notes(project, pulls_filename, milestone, template):
     """

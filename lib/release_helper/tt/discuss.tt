@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>[% project %] to discuss</title>
+[%    INCLUDE 'css.tt' %]
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="container">
+        <a class="navbar-brand"><img src="/img/[% project %]_logo_navbar.png" width="94" height="23" alt="[% project %] logo"> &mdash; Discuss</a>
+      </div>
+    </div>
+    <div class="container">
+      <h2>To be discussed at the next workshop</h2>
+      <div class="panel panel-default">
+        <table class="table panel-body">
+[%          FOREACH repo IN discuss.pairs %]
+[%              IF repo.value.size == 0;
+                    NEXT;
+                 END; %]
+          <tr>
+            <td class="col-md-3"><b>[% repo.key %]</b></td>
+            <td>
+              <ul class="list-unstyled">
+[%              FOREACH this IN repo.value %]
+                <li class="thing-[% this.state %]">
+                  <span class="text-github-[% this.state %] octicon octicon-[% this.icon %]" title="State: [% this.state %]"></span>
+                  <a href="[% this.url %]"><strong>[% this.title %]</strong></a>
+[%                  IF this.comment_count > 0 %]
+                  <span class="text-muted"><span class="octicon octicon-comment-discussion"></span> [% this.comment_count %]</span>
+[%                  END %]
+                  <div style="margin-left: 16px;">
+                    <span class="text-muted">Created by</span>
+                    <a href="http://www.github.com/[% this.user %]">[% this.user %]</a>
+                    <span class="text-muted">
+                      <span class="reldate">[% this.created %]</span>
+                    </span>
+[%                    IF this.defined('assignee') %]
+                    <span class="text-muted">, Assigned to</span>
+                    <a href="http://www.github.com/[% this.assignee %]">[% this.assignee %]</a>
+[%                    END %]
+                    <span class="text-muted">, Updated <span class="reldate">[% this.updated %]</span></span>
+                  </div>
+                </li>
+[%              END %]
+              </ul>
+            </td>
+          </tr>
+[%          END %]
+        </table>
+      </div>
+    <div>
+    <script type="text/javascript">
+[%    INCLUDE 'js_reldate.tt' %]
+    </script>
+  </body>
+</html>

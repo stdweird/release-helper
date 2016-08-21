@@ -2,7 +2,7 @@ import datetime
 import os
 import unittest
 import release_helper.render
-from release_helper.render import render, index, release_notes
+from release_helper.render import render, index_discuss, release_notes
 from mock import patch
 
 ORIG_INCLUDE = release_helper.render.INCLUDEPATH
@@ -35,17 +35,22 @@ class UtilsTest(unittest.TestCase):
         self.longMessage = True
 
         fn = os.path.join(os.path.dirname(__file__), 'data', 'index.html')
-        res = open(fn).read()
+        res_i = open(fn).read()
 
+        fn = os.path.join(os.path.dirname(__file__), 'data', 'to_discuss.html')
+        res_d = open(fn).read()
+        
         json_filename = os.path.join(os.path.dirname(__file__), 'data', 'quattor-pulls.json')
 
-        html = index('myproject', json_filename)
+        index, discuss = index_discuss('myproject', json_filename)
 
         # Uncomment to update the rendered test/data/index.html once considered ok
         # Do not forget to comment it again
-        #open('/tmp/testrenderindex.html', 'w').write(html)
+        #open('/tmp/testrenderindex.html', 'w').write(index)
+        #open('/tmp/testrenderdiscuss.html', 'w').write(discuss)
 
-        self.assertMultiLineEqual(html, res)
+        self.assertMultiLineEqual(index, res_i)
+        self.assertMultiLineEqual(discuss, res_d)
 
 
     @patch('release_helper.render.datetime')

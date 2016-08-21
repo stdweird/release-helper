@@ -127,7 +127,8 @@
                     "created": "2016-04-11T13:03:16",
                     "comment_count": 11,
                     "state": "open",
-                    "type": "issue"
+                    "type": "issue",
+                    "to_discuss": true
                 }
             ],
             "open": 0,

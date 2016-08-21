@@ -1,0 +1,38 @@
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.2.2/moment-timezone.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.css">
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Lato:400);
+      body {
+        padding-bottom: 40px;
+        font-family: 'Lato', 'Helvetica', sans-serif;
+        background-color: #eef1f1;
+      }
+      h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+        font-family: 'Lato', 'Helvetica', sans-serif;
+      }
+      blockquote {
+        font-size: small;
+      }
+      .navbar-inverse {
+        background-color: #004080;
+      }
+      .navbar-inverse .navbar-brand {
+        color: white;
+      }
+      .text-github-open {
+        color: #6cc644;
+      }
+      .text-github-closed {
+        color: #BD2C00;
+      }
+      .text-github-merged {
+        color: #6E5494;
+      }
+      .thing-closed, .thing-merged {
+        display: none;
+        opacity: 0.75;
+      }
+    </style>

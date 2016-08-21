@@ -23,10 +23,7 @@ def get_args():
     parser.add_argument("-C", "--configs", help="comma-separated list of config files")
 
     parser.add_argument("-c", "--collect", help="collect github repository information", action="store_true")
-    parser.add_argument("-r", "--render", help="render html release overview", action="store_true")
-
-    parser.add_argument("-w", "--web", help="start simple webserver", action="store_true")
-    parser.add_argument("-p", "--port", help="webserver port", default=8000)
+    parser.add_argument("-r", "--render", help="render html release overview and discuss pages", action="store_true")
 
     parser.add_argument("-n", "--notes", help="Generate the releasenotes", action="store_true")
     parser.add_argument("--milestone", help="Milestone to use (for releasenotes)")
@@ -34,10 +31,13 @@ def get_args():
 
     parser.add_argument("-m", '--milestones', help='Configure milestones (from configured releases)', action='store_true')
 
+    parser.add_argument('-l', '--labels', help='Configure labels', action='store_true')
+
+    parser.add_argument("-w", "--web", help="start simple webserver", action="store_true")
+    parser.add_argument("-p", "--port", help="webserver port", default=8000)
+
     parser.add_argument('--bump', help='Bump/shift milestones number of months, print new release section', action='store_true')
     parser.add_argument('--months', help='Number of months to bump/shift milestones', action='store_true', default=2)
-
-    parser.add_argument('-l', '--labels', help='Configure labels', action='store_true')
 
     args = parser.parse_args()
     return args

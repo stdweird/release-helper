@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8">
     <title>myproject release</title>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.2.2/moment-timezone.min.js"></script>
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/octicons/2.0.2/octicons.css">
     <style type="text/css">
@@ -38,10 +42,7 @@
         opacity: 0.75;
       }
     </style>
-    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.3/moment.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.2.2/moment-timezone.min.js"></script>
+
   </head>
   <body>
     <div class="navbar navbar-inverse navbar-static-top" role="navigation">
@@ -450,6 +451,7 @@
           $(this).text(moment.tz($(this).text(), "YYYY-MM-DDTHH:mm:ss", "UTC").fromNow());
         });
       });
+
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         release = String(e.target).split("#",2)[1].replace("-", "."); //Ugh.
         if (release == "Backlog" || release == 'Legacy') $('#burndown-container').html('');
