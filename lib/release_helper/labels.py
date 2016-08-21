@@ -1,17 +1,15 @@
 """
-Labels
+Label configuration
 """
 
 import logging
-from release_helper.config import get_labels
 
-def configure(repo, labels=None):
+def configure_labels(repo, labels):
     """
     Configure the labels of repository
-    If not labels map is passed, default from config is used
+
+    Labels is a mapping label name / color
     """
-    if labels is None:
-        labels = get_labels()
 
     existing_labels = dict([(l.name, l) for l in repo.get_labels()])
 

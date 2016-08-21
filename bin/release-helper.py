@@ -2,14 +2,16 @@
 # encoding: utf8
 
 import argparse
+import BaseHTTPServer
 import logging
 import os
-from release_helper.config import make_config, get_project, get_repos, get_releases, get_output_filenames
-from release_helper.collect import collect
-from release_helper.render import make_html, make_notes
-from release_helper.milestone import milestones_from_releases, configure_milestones, bump
-import BaseHTTPServer
 import SimpleHTTPServer
+
+from release_helper.config import make_config, get_project, get_repos, get_releases, get_output_filenames, get_labels
+from release_helper.collect import collect
+from release_helper.labels import configure_labels
+from release_helper.milestone import milestones_from_releases, configure_milestones, bump
+from release_helper.render import make_html, make_notes
 
 
 def get_args():
@@ -35,6 +37,8 @@ def get_args():
     parser.add_argument('--bump', help='Bump/shift milestones number of months, print new release section', action='store_true')
     parser.add_argument('--months', help='Number of months to bump/shift milestones', action='store_true', default=2)
 
+    parser.add_argument('-l', '--labels', help='Configure labels', action='store_true')
+
     args = parser.parse_args()
     return args
 
@@ -53,7 +57,7 @@ def main():
     if args.configs:
         cfgs = args.configs.split(',')
 
-    use_github = any([getattr(args, x) for x in ('collect', 'milestones', 'bump',)])
+    use_github = any([getattr(args, x) for x in ('collect', 'milestones', 'bump', 'labels')])
 
     # Do not unneccesiraly gather GH data
     make_config(cfgs=cfgs, use_github=use_github)
@@ -86,7 +90,11 @@ def main():
             txt.append("%s=%s" % (title, ','.join(dates)))
 
         print "\n".join(txt)
-
+    elif args.labels:
+        labels = get_labels()
+        logging.info('Configuring labels')
+        for repo in repos:
+            configure_labels(repo, labels)
     else:
         if args.collect:
             logging.info('Collect')
